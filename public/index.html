@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffeeba;
+            border: 2px solid #030c15;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 60%;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #c59410;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 48%;
+        }
+
+        .blurred-block {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #02080e;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 90%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: rgb(19, 129, 143);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px #999;
+            transition: all 0.3s ease;
+        }
+
+        button:active {
+            box-shadow: 0 2px #666;
+            transform: translateY(4px);
+        }
+
+        button:hover {
+            background-color: rgb(0, 109, 139);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>User Registration</h1>
+        <h2>यथा कृतं तदनुपश्यति।</h2>
+        <form id="userForm">
+            <div class="form-row">
+                <div class="column">
+                    <div class="blurred-block">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="mobileNo">Mobile No:</label>
+                        <input type="text" id="mobileNo" name="mobileNo" required pattern="\d{10}">
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="city">City:</label>
+                        <input type="text" id="city" name="city">
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="street">Street:</label>
+                        <input type="text" id="street" name="street">
+                    </div>
+                </div>
+                <div class="column">
+                    <div class="blurred-block">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="state">State:</label>
+                        <input type="text" id="state" name="state">
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="country">Country:</label>
+                        <input type="text" id="country" name="country">
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required minlength="6">
+                    </div>
+
+                    <div class="blurred-block">
+                        <label for="loginId">Login ID:</label>
+                        <input type="text" id="loginId" name="loginId" required pattern="[a-zA-Z0-9]{8,}">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('userForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('User saved successfully');
+                    e.target.reset();
+                } else {
+                    const errorData = await response.json();
+                    alert('Error saving user: ' + errorData.message);
+                }
+            } catch (error) {
+                alert('Error saving user: ' + error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>
