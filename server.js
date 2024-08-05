@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://.xcclxio.mongodb.net/?retryWrites=true&w=majority&appName=db29')
+mongoose.connect('mongodb+srv://vinodxw720:CoNDESvoVLyqTQd3@db29.xcclxio.mongodb.net/?retryWrites=true&w=majority&appName=db29')
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("Could not connect to MongoDB", err));
 
