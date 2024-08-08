@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
+    <title>User Form</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,17 +87,16 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
-        <h1>User Registration</h1>
+        <h1>User Form</h1>
         <h2>यथा कृतं तदनुपश्यति।</h2>
         <form id="userForm">
             <div class="form-row">
                 <div class="column">
                     <div class="blurred-block">
                         <label for="firstName">First Name:</label>
-                        <input type="text" id="firstName" name="firstName" required>
+                        <input type="text" id="firstName" name="firstName" pattern="[A-Za-z\s]+" title="Only letters and spaces" required>
                     </div>
 
                     <div class="blurred-block">
@@ -108,82 +106,89 @@
 
                     <div class="blurred-block">
                         <label for="mobileNo">Mobile No:</label>
-                        <input type="text" id="mobileNo" name="mobileNo" required pattern="\d{10}">
+                        <input type="text" id="mobileNo" name="mobileNo" pattern="\d{10}" required>
                     </div>
 
                     <div class="blurred-block">
                         <label for="city">City:</label>
-                        <input type="text" id="city" name="city">
+                        <input type="text" id="city" name="city" pattern="[A-Za-z\s]+" title="Only letters and spaces">
                     </div>
 
                     <div class="blurred-block">
                         <label for="street">Street:</label>
-                        <input type="text" id="street" name="street">
+                        <input type="text" id="street" name="street" pattern="[A-Za-z0-9\s,.'-]{3,}" title="Street address with letters, numbers, and common punctuation">
                     </div>
                 </div>
                 <div class="column">
                     <div class="blurred-block">
                         <label for="lastName">Last Name:</label>
-                        <input type="text" id="lastName" name="lastName" required>
+                        <input type="text" id="lastName" name="lastName" pattern="[A-Za-z\s]+" title="Only letters and spaces" required>
                     </div>
 
                     <div class="blurred-block">
                         <label for="state">State:</label>
-                        <input type="text" id="state" name="state">
+                        <input type="text" id="state" name="state" pattern="[A-Za-z\s]+" title="Only letters and spaces">
                     </div>
 
                     <div class="blurred-block">
                         <label for="country">Country:</label>
-                        <input type="text" id="country" name="country">
+                        <input type="text" id="country" name="country" pattern="[A-Za-z\s]+" title="Only letters and spaces">
                     </div>
 
                     <div class="blurred-block">
                         <label for="password">Password:</label>
-                        <input type="password" id="password" name="password" required minlength="6">
+                        <input type="password" id="password" name="password" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}" title="At least 6 characters, 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character" required>
                     </div>
 
                     <div class="blurred-block">
-                        <label for="loginId">Login ID:</label>
-                        <input type="text" id="loginId" name="loginId" required pattern="[a-zA-Z0-9]{8,}">
+                        <label for="loginId">Login Id:</label>
+                        <input type="text" id="loginId" name="loginId" pattern="[A-Za-z0-9]{8,}" title="At least 8 alphanumeric characters" required>
                     </div>
                 </div>
             </div>
-
-            <button type="submit">Save</button>
+            <button type="submit">Submit</button>
         </form>
     </div>
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        document.getElementById('userForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        $('#userForm').submit(function(event) {
+            event.preventDefault();
+            const formData = {
+                firstName: $('#firstName').val(),
+                lastName: $('#lastName').val(),
+                mobileNo: $('#mobileNo').val(),
+                email: $('#email').val(),
+                address: {
+                    street: $('#street').val(),
+                    city: $('#city').val(),
+                    state: $('#state').val(),
+                    country: $('#country').val()
+                },
+                loginId: $('#loginId').val(),
+                password: $('#password').val()
+            };
 
-            const formData = new FormData(e.target);
-            const data = {};
-            formData.forEach((value, key) => {
-                data[key] = value;
-            });
-
-            try {
-                const response = await fetch('/api/users', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-
-                if (response.ok) {
-                    alert('User saved successfully');
-                    e.target.reset();
-                } else {
-                    const errorData = await response.json();
-                    alert('Error saving user: ' + errorData.message);
-                }
-            } catch (error) {
-                alert('Error saving user: ' + error.message);
+            // Client-side validation
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+            if (!passwordPattern.test(formData.password)) {
+                alert('Password must be at least 6 characters long and include 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character.');
+                return;
             }
+
+            $.ajax({
+                type: 'POST',
+                url: '/api/users',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert('User saved successfully');
+                    window.location.href = '/profile/' + response._id;
+                },
+                error: function(error) {
+                    alert('Error saving user: ' + error.responseText);
+                }
+            });
         });
     </script>
 </body>
-
 </html>

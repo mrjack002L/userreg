@@ -8,47 +8,41 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB
 mongoose.connect('mongodb+srv://vinodxw720:CoNDESvoVLyqTQd3@db29.xcclxio.mongodb.net/?retryWrites=true&w=majority&appName=db29')
   .then(() => console.log("Connected to MongoDB"))
   .catch(err => console.error("Could not connect to MongoDB", err));
 
-// Define a schema
 const userSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
+  firstName: { type: String, required: true, match: /^[a-zA-Z\s]+$/ },
+  lastName: { type: String, required: true, match: /^[a-zA-Z\s]+$/ },
   mobileNo: { type: String, required: true, match: /^\d{10}$/ },
   email: { type: String, required: true, match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
   address: {
-    street: String,
-    city: String,
-    state: String,
-    country: String
+    street: { type: String, match: /^[a-zA-Z0-9\s,.'-]{3,}$/ },
+    city: { type: String, match: /^[a-zA-Z\s]+$/ },
+    state: { type: String, match: /^[a-zA-Z\s]+$/ },
+    country: { type: String, match: /^[a-zA-Z\s]+$/ }
   },
   loginId: { type: String, required: true, match: /^[a-zA-Z0-9]{8,}$/ },
-  password: { type: String, required: true, minlength: 6 },
+  password: { type: String, required: true, match: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/ },
   creationTime: { type: Date, default: Date.now },
   lastUpdated: { type: Date, default: Date.now }
 });
 
-// Create a model
 const User = mongoose.model('User', userSchema);
 
-// Create a new user
 app.post('/api/users', async (req, res) => {
   try {
     const user = new User(req.body);
     await user.save();
-    res.status(201).send(user);
+    res.status(201).json(user);
   } catch (error) {
     res.status(400).send(error);
   }
 });
 
-// Get all users
 app.get('/api/users', async (req, res) => {
   try {
     const users = await User.find();
@@ -58,7 +52,23 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// Start the server
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).send('User not found');
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+app.get('/profile/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'profile.html'));
+});
+
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
